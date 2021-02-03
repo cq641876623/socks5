@@ -1,4 +1,4 @@
-package com.cq.socket5;
+package com.cq.socks5;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -7,15 +7,12 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
 
 /**
  * @author chenqi
  * @date 2021/2/2 15:33
  */
-public class Socket5Channel {
+public class Socks5Channel {
     public static final byte[] CERTIFICATION_METHOD=new byte[]{0x00,0x02};
 
     private static final int SOCKS_PROTOCOL_4 = 0X04;
@@ -53,24 +50,24 @@ public class Socket5Channel {
 
 
 
-    public Socket5Channel() {
+    public Socks5Channel() {
         this.currentState=0;
     }
 
-    public Socket5Channel read(ByteBuffer buf, SelectionKey key, Selector selector) throws IOException {
+    public Socks5Channel read(ByteBuffer buf, SelectionKey key, Selector selector) throws IOException {
 
         switch (this.currentState){
-            case Socket5Status.HANDSHAKE:
+            case Socks5Status.HANDSHAKE:
 //                协议格式长度校验
                 init(buf, key);
                 break;
-            case Socket5Status.IDENTITY_AUTHENTICATION:
+            case Socks5Status.IDENTITY_AUTHENTICATION:
 
                 break;
-            case Socket5Status.EXECUTE_THE_ORDER:
+            case Socks5Status.EXECUTE_THE_ORDER:
                 execCmd(buf, key,selector);
                 break;
-            case Socket5Status.PROXY_REQUEST:
+            case Socks5Status.PROXY_REQUEST:
                 proxyRequest(buf,key);
                 break;
 
@@ -136,7 +133,7 @@ public class Socket5Channel {
                 b.write(buf);
                 buf.clear();
             }
-            System.out.println("转发："+a.getRemoteAddress()+"------>>>>>------remote: "+a.getRemoteAddress()+" 共 "+total+" byte");
+            System.out.println("转发："+a.getRemoteAddress()+" ------>>>>>------ remote: "+a.getRemoteAddress()+" 共 "+total+" byte");
             if(len==-1)result=true;
         } catch (IOException e) {
             e.printStackTrace();

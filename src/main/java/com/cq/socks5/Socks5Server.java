@@ -1,4 +1,4 @@
-package com.cq.socket5;
+package com.cq.socks5;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -13,7 +13,7 @@ import java.util.Iterator;
  * @author chenqi
  * @date 2021/2/2 15:16
  */
-public class Socket5Server {
+public class Socks5Server {
 
     private static final int DEFAULT_PORT=1080;
     private static final int DEFAULT_BUFFER_SIZE=1024;
@@ -28,7 +28,7 @@ public class Socket5Server {
 
 
 
-    public Socket5Server(int bufSize, int port) {
+    public Socks5Server(int bufSize, int port) {
         this.bufSize = bufSize;
         this.port = port;
         buf=ByteBuffer.allocate(bufSize);
@@ -41,10 +41,11 @@ public class Socket5Server {
             this.run();
         } catch (IOException e) {
             System.out.println("nio服务open失败!端口号："+port+"缓冲池大小:"+bufSize);
+            e.printStackTrace();
         }
     }
 
-    public Socket5Server() {
+    public Socks5Server() {
         this(DEFAULT_PORT,DEFAULT_BUFFER_SIZE);
     }
 
@@ -63,15 +64,20 @@ public class Socket5Server {
                     accept(key);
                 }
                 if(key.isConnectable()) {
-                    SocketChannel sc= (SocketChannel) key.channel();
-                    sc.finishConnect();
-                    Socket5Channel channel= (Socket5Channel) key.attachment();
-                    sc.register(selector,SelectionKey.OP_READ,channel);
+                    try {
+                        SocketChannel sc= (SocketChannel) key.channel();
+                        sc.finishConnect();
+                        Socks5Channel channel= (Socks5Channel) key.attachment();
+                        sc.register(selector,SelectionKey.OP_READ,channel);
+                    }catch (Exception e){
+                        System.out.println();
+                    }
+
                 }
 
                 if(key.isReadable()){
                     try{
-                        Socket5Channel channel= (Socket5Channel) key.attachment();
+                        Socks5Channel channel= (Socks5Channel) key.attachment();
                         channel.read(buf,key,selector);
                     }catch (Exception e){
                         e.printStackTrace();
@@ -88,12 +94,12 @@ public class Socket5Server {
 
     private void accept(SelectionKey key) throws IOException {
         ServerSocketChannel ssc = (ServerSocketChannel) key.channel();
-        Socket5Channel channel;
+        Socks5Channel channel;
         SocketChannel clientChannel = ssc.accept();
         clientChannel.socket().setSoTimeout(3000);
         clientChannel.configureBlocking(false);
 
-        channel=new Socket5Channel();
+        channel=new Socks5Channel();
         clientChannel.register(selector, SelectionKey.OP_READ,channel);
         System.out.println("a new client connected "+clientChannel.getRemoteAddress());
 
@@ -101,6 +107,6 @@ public class Socket5Server {
     }
 
     public static void main(String[] args) {
-        Socket5Server socket5Server=new Socket5Server(1024,1888);
+        Socks5Server socket5Server=new Socks5Server(1024,1888);
     }
 }

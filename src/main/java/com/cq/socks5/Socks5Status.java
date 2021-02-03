@@ -1,10 +1,10 @@
-package com.cq.socket5;
+package com.cq.socks5;
 
 /**
  * @author chenqi
  * @date 2020/12/11 13:56
  */
-public class Socket5Status {
+public class Socks5Status {
 
 //    握手状态
     public static final int HANDSHAKE=0;
