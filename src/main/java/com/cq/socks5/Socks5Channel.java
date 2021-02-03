@@ -48,6 +48,9 @@ public class Socks5Channel {
      */
     private int proxyType=-1;
 
+    public ByteBuffer rsv;
+    public long remoteStartContectTime;
+
 
 
     public Socks5Channel() {
@@ -205,7 +208,7 @@ public class Socks5Channel {
         this.client=socketChannel;
         byte[] data=readBuffer(buf,key);
         if(isSocket5(data)){
-            ByteBuffer rsv = ByteBuffer.allocate(10);
+            rsv = ByteBuffer.allocate(10);
             rsv.put((byte) SOCKS_PROTOCOL_5);
             int cmd=data[1];
             int atyp=data[3];
@@ -224,6 +227,7 @@ public class Socks5Channel {
                         remoteSocketChannel.configureBlocking(false);
                         remoteSocketChannel.connect(dstRemoteAddress);
                         remoteSocketChannel.register(selector,SelectionKey.OP_CONNECT,this);
+                        remoteStartContectTime=System.currentTimeMillis();
                         rsv.put((byte) 0x00);
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -254,7 +258,6 @@ public class Socks5Channel {
             Short localPort = (short) ((socketChannel.socket().getLocalPort()) & 0xFFFF);
             rsv.putShort(localPort);
             rsv.flip();
-            socketChannel.write(rsv);
             this.currentState=3;
 
         }

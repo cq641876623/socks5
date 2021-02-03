@@ -59,6 +59,7 @@ public class Socks5Server {
                 if(!key.isValid()){
                     key.cancel();
                     key.channel().close();
+                    continue;
                 }
                 if(key.isAcceptable()) {
                     accept(key);
@@ -69,8 +70,15 @@ public class Socks5Server {
                         sc.finishConnect();
                         Socks5Channel channel= (Socks5Channel) key.attachment();
                         sc.register(selector,SelectionKey.OP_READ,channel);
+                        long remoteEndContectTime=System.currentTimeMillis();
+                        System.out.println("建立连接："+channel.client.getRemoteAddress()+" ------>>>>>------ remote: "+sc.getRemoteAddress()+"共耗时："+(remoteEndContectTime-channel.remoteStartContectTime));
+                        channel.client.write(channel.rsv);
                     }catch (Exception e){
-                        System.out.println();
+                        System.out.println("连接异常：");
+                        e.printStackTrace();
+                        key.cancel();
+                        key.channel().close();
+                        continue;
                     }
 
                 }
